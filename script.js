@@ -4,7 +4,7 @@ const generateBtn = document.getElementById('generateBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 
 // ===== API KEYS =====
-const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_KEY || ''; 
+const UNSPLASH_ACCESS_KEY = ''; 
 const OPENAI_API_KEY = '';
 
 // ===== CONFIGURATION =====
