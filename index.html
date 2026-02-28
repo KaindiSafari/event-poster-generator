@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Poster Generator - Free AI-Powered Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Event Poster Generator</h1>
+        <p>Create professional event posters in seconds - completely free!</p>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Input Section -->
+<div class="input-section">
+    <h2>Event Details</h2>
+    <p class="section-tip">Fill in your event information first</p>
+
+    <!-- EVENT INFORMATION FIRST -->
+    <div class="form-group">
+        <label>Event Name</label>
+        <input type="text" id="eventName" placeholder="e.g., Community Cleanup Day">
+        <small class="input-hint">What's your event called?</small>
+    </div>
+
+    <div class="form-group">
+        <label>Date</label>
+        <input type="text" id="eventDate" placeholder="e.g., March 15, 2025">
+        <small class="input-hint">When is it happening?</small>
+    </div>
+
+    <div class="form-group">
+        <label>Time</label>
+        <input type="text" id="eventTime" placeholder="e.g., 10:00 AM - 2:00 PM">
+        <small class="input-hint">What time should people arrive?</small>
+    </div>
+
+    <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="eventLocation" placeholder="e.g., Uhuru Park, Nairobi">
+        <small class="input-hint">Where will it take place?</small>
+    </div>
+
+    <div class="form-group">
+        <label>Additional Details (Optional)</label>
+        <textarea id="eventDetails" rows="3" placeholder="e.g., Bring gloves and water. All welcome!"></textarea>
+        <small class="input-hint">Any extra information attendees should know</small>
+    </div>
+
+    <!-- DIVIDER -->
+    <div style="border-top: 2px solid rgba(102, 92, 238, 0.2); margin: 2rem 0;"></div>
+
+    <!-- TEMPLATE SELECTION -->
+    <h3 style="color: #667eea; margin-bottom: 1rem;">Choose Design Style</h3>
+
+    <div class="form-group">
+        <label>Template Style</label>
+        <select id="template">
+            <option value="modern">Modern and Clean</option>
+            <option value="bold">Bold and Vibrant</option>
+            <option value="minimal">Minimalist</option>
+            <option value="retro">Retro Vibes</option>
+        </select>
+        <small class="input-hint">Each style has unique fonts and layouts!</small>
+    </div>
+
+    <!-- AI RECOMMENDATION BUTTON -->
+    <div class="form-group">
+        <button id="aiRecommend" type="button" class="btn-ai" disable style="opacity: 0.5; cursor: not-allowed;">
+            AI: Coming Soon!
+        </button>
+        <small class="input-hint"style="color: #7f8c8d;">AI features available in desktop version</small>
+    </div>
+
+    <!-- POSTER SIZE -->
+    <div class="form-group">
+        <label>Poster Size</label>
+        <select id="posterSize">
+            <option value="print">Print / General (800x1200)</option>
+            <option value="instagram-post">Instagram Post (1080x1080)</option>
+            <option value="instagram-story">Instagram Story (1080x1920)</option>
+            <option value="facebook">Facebook Event (1920x1080)</option>
+            <option value="a4">A4 Printable (2480x3508)</option>
+        </select>
+        <small class="input-hint">Choose based on where you'll share it</small>
+    </div>
+
+    <!-- DIVIDER -->
+    <div style="border-top: 2px solid rgba(102, 92, 238, 0.2); margin: 2rem 0;"></div>
+
+    <!-- IMAGE UPLOAD SECTION -->
+    <div class="image-upload-section">
+        <h3 style="color: #667eea; margin-bottom: 0.5rem;">Add Background Image</h3>
+        <p class="section-tip">Search for free photos or upload your own. Images appear as full backgrounds!</p>
+
+        <!-- AI Image Search -->
+        <div class="form-group">
+            <label>Search Free Images (Powered by Unsplash)</label>
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="imageSearch" placeholder="Try: church, party, nature, food, people...">
+                <button id="searchBtn" type="button" style="padding: 0.75rem 1.5rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; font-weight: 600;">Search</button>
+            </div>
+
+            <!-- SUGGESTIONS DIV - FIXED! -->
+            <div id="searchSuggestions" style="display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; min-height: 35px;">
+                <!-- Pills appear here -->
+            </div>
+            <small class="input-hint">Click suggestions above or type your own search</small>
+        </div>
+
+        <!-- Search Results -->
+        <div id="imageResults" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 1rem;">
+            <!-- Images appear here -->
+        </div>
+
+        <!-- OR Manual Upload -->
+        <div style="text-align: center; margin: 1.5rem 0; color: #b8b9c7; font-weight: 600;">
+            OR
+        </div>
+
+        <label for="imageUpload" class="upload-btn">
+            Upload Your Own Image
+        </label>
+        <input type="file" id="imageUpload" accept="image/*">
+        <img id="imagePreview" alt="Image preview" style="display: none; margin-top: 1rem; max-width: 150px; border-radius: 8px; border: 2px solid rgba(102, 92, 238, 0.3);">
+    </div>
+</div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <h2>Preview</h2>
+                <p class="section-tip">Your poster preview appears here. Click Generate poster after filling the form!</p>
+
+                <canvas id="posterCanvas" width="800" height="1200"></canvas>
+
+                <!-- Generate button FIRST -->
+                <button id="generateBtn" class="btn-primary">Generate Poster</button>
+                <small class="input-hint" style="display: block; text-align: center; margin-top: 0.5rem;">Click after adding your details and image!</small>
+
+                <!-- Then Download & Copy buttons -->
+                <button id="downloadBtn" class="btn-secondary" style="background: linear-gradient(135deg, #765e76 0%, #8e598e 100%); margin-top: 1rem;">Download Poster</button>
+                <button id="copyBtn" class="btn-secondary" style="background: linear-gradient(135deg, hsl(282, 10%, 41%) 0%, #8e44ad 100%); margin-top: 0.5rem;">Copy to Clipboard</button>
+
+                <!-- Share buttons -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 1rem;">
+                    <button id="shareWhatsApp" class="btn-share">WhatsApp</button>
+                    <button id="shareInstagram" class="btn-share">Instagram</button>
+                    <button id="shareFacebook" class="btn-share">Facebook</button>
+                    <button id="shareTwitter" class="btn-share">Twitter</button>
+                </div>
+                <small class="input-hint" style="display: block; text-align: center; margin-top: 0.5rem;">Share directly to social media or download first!</small>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Built by Kaindi Safari ~ Free tool for all</p>
+        <p><a href="https://github.com/kaindisafari" target="_blank">GitHub</a></p>
+
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
