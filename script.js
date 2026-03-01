@@ -3,9 +3,8 @@ const ctx = canvas.getContext('2d');
 const generateBtn = document.getElementById('generateBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 
-// ===== API KEYS =====
-const UNSPLASH_ACCESS_KEY = ''; 
-const OPENAI_API_KEY = '';
+// ===== NO API KEYS NEEDED - USING SERVERLESS FUNCTIONS =====
+// Keys are stored securely in Vercel environment variables
 
 // ===== CONFIGURATION =====
 const posterSizes = {
@@ -96,7 +95,8 @@ if (imageUpload) {
         }
     });
 }
-// ===== AI TEMPLATE RECOMMENDATION =====
+
+// ===== AI TEMPLATE RECOMMENDATION (VERCEL SERVERLESS) =====
 const aiRecommendBtn = document.getElementById('aiRecommend');
 if (aiRecommendBtn) {
     aiRecommendBtn.addEventListener('click', async () => {
@@ -104,49 +104,24 @@ if (aiRecommendBtn) {
         const eventDetails = document.getElementById('eventDetails').value.trim();
         
         if (!eventName) {
-            alert('Please enter an event name first!');
+            alert('💡 Please enter an event name first!');
             return;
         }
         
-        aiRecommendBtn.innerHTML = 'AI is thinking...';
+        aiRecommendBtn.innerHTML = '🤖 AI is thinking...';
         aiRecommendBtn.disabled = true;
         
         try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            const response = await fetch('/api/ai-recommend', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OPENAI_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4o-mini',
-                    messages: [{
-                        role: 'system',
-                        content: 'You are a professional graphic designer helping choose poster templates. Be brief and confident.'
-                    }, {
-                        role: 'user',
-                        content: `Event: "${eventName}"
-${eventDetails ? `Details: "${eventDetails}"` : ''}
-
-Choose ONE template and explain why in 10 words max:
-
-Templates:
-- modern: Clean, professional, corporate events, elegant
-- bold: Energetic, fun, parties, celebrations, youth events
-- minimal: Sophisticated, elegant, formal, high-end
-- retro: Vintage, nostalgic, throwback, groovy, 70s vibes
-
-Format: "[template] - [reason]"`
-                    }],
-                    max_tokens: 50,
-                    temperature: 0.7
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventName, eventDetails })
             });
             
             const data = await response.json();
             
             if (data.error) {
-                throw new Error(data.error.message);
+                throw new Error(data.error);
             }
             
             const recommendation = data.choices[0].message.content.trim();
@@ -161,26 +136,26 @@ Format: "[template] - [reason]"`
             
             const resultDiv = document.getElementById('aiResult');
             if (resultDiv) {
-                resultDiv.textContent = `AI says: ${recommendation}`;
+                resultDiv.textContent = `✨ AI says: ${recommendation}`;
                 resultDiv.style.display = 'block';
             }
             
-            aiRecommendBtn.innerHTML = 'Template Selected!';
+            aiRecommendBtn.innerHTML = '✅ Template Selected!';
             setTimeout(() => {
-                aiRecommendBtn.innerHTML = 'AI: Recommend Best Template';
+                aiRecommendBtn.innerHTML = '✨ AI: Recommend Best Template';
                 aiRecommendBtn.disabled = false;
             }, 2000);
             
         } catch (error) {
             console.error('AI Error:', error);
-            alert('AI recommendation failed. Please select template manually.');
-            aiRecommendBtn.innerHTML = 'AI: Recommend Best Template';
+            alert('⚠️ AI recommendation failed. Please try again!');
+            aiRecommendBtn.innerHTML = '✨ AI: Recommend Best Template';
             aiRecommendBtn.disabled = false;
         }
     });
 }
 
-// ===== SMART IMAGE SEARCH =====
+// ===== SMART IMAGE SEARCH (VERCEL SERVERLESS) =====
 const searchBtn = document.getElementById('searchBtn');
 if (searchBtn) {
     searchBtn.addEventListener('click', async function() {
@@ -197,9 +172,8 @@ if (searchBtn) {
         
         try {
             const promises = searchTerms.map(term =>
-                fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(term)}&per_page=3&orientation=squarish`, {
-                    headers: { 'Authorization': `Client-ID ${UNSPLASH_ACCESS_KEY}` }
-                }).then(r => r.json())
+                fetch(`/api/unsplash?query=${encodeURIComponent(term)}`)
+                    .then(r => r.json())
             );
             
             const results = await Promise.all(promises);
@@ -296,19 +270,17 @@ function selectUnsplashImage(imageUrl) {
     img.src = imageUrl;
 }
 
-// ===== SEARCH SUGGESTIONS (IMPROVED) =====
+// ===== SEARCH SUGGESTIONS =====
 const imageSearchInput = document.getElementById('imageSearch');
 const suggestionsDiv = document.getElementById('searchSuggestions');
 
 if (imageSearchInput && suggestionsDiv) {
-    // Show default suggestions immediately
     showSuggestions(['church', 'party', 'wedding', 'nature', 'business']);
     
     imageSearchInput.addEventListener('input', function() {
         const value = this.value.toLowerCase().trim();
         
         if (value.length < 2) {
-            // Show popular searches when empty
             showSuggestions(['church', 'party', 'wedding', 'nature', 'business']);
             return;
         }
@@ -317,12 +289,10 @@ if (imageSearchInput && suggestionsDiv) {
         if (suggestions.length > 0) {
             showSuggestions(suggestions);
         } else {
-            // Fallback to popular searches
             showSuggestions(['church', 'party', 'wedding', 'nature', 'business']);
         }
     });
     
-    // Also show suggestions when clicking the input
     imageSearchInput.addEventListener('focus', function() {
         const value = this.value.toLowerCase().trim();
         if (value.length < 2) {
@@ -341,7 +311,6 @@ function showSuggestions(suggestions) {
         const btn = document.createElement('button');
         btn.textContent = word;
         btn.type = 'button';
-        btn.className = 'suggestion-pill';
         btn.style.cssText = `
             padding: 0.5rem 1rem;
             background: rgba(102, 92, 238, 0.15);
@@ -377,7 +346,6 @@ function showSuggestions(suggestions) {
 
 function getSuggestions(query) {
     const suggestionMap = {
-        // Partial matches
         'ch': ['church', 'worship', 'celebration'],
         'chu': ['church', 'worship', 'prayer'],
         'pa': ['party', 'celebration', 'people'],
@@ -390,8 +358,6 @@ function getSuggestions(query) {
         'nat': ['nature', 'trees', 'mountains'],
         'fo': ['food', 'restaurant', 'meal'],
         'foo': ['food', 'cooking', 'dinner'],
-        
-        // Full matches
         'church': ['worship', 'prayer', 'cross', 'faith', 'bible'],
         'party': ['celebration', 'balloons', 'confetti', 'dancing', 'cake'],
         'wedding': ['bride', 'groom', 'flowers', 'rings', 'love'],
@@ -412,14 +378,12 @@ function getSuggestions(query) {
         'beach': ['ocean', 'sand', 'summer', 'vacation', 'tropical']
     };
     
-    // Check for matches
     for (const [key, suggestions] of Object.entries(suggestionMap)) {
         if (query === key || query.startsWith(key) || key.includes(query)) {
             return suggestions.slice(0, 5);
         }
     }
     
-    // Default popular searches
     return ['church', 'party', 'nature', 'food', 'business'];
 }
 // ===== GENERATE POSTER =====
@@ -549,130 +513,124 @@ function drawBoldTemplate(t, name, date, time, location, details) {
     if (uploadedImage) {
         ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, 'rgba(255, 107, 107, 0.85)');
-        gradient.addColorStop(1, 'rgba(255, 107, 107, 0.65)');
+        gradient.addColorStop(0, 'rgba(255, 87, 87, 0.7)');
+        gradient.addColorStop(0.5, 'rgba(255, 107, 107, 0.75)');
+        gradient.addColorStop(1, 'rgba(220, 47, 47, 0.85)');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     } else {
         const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
         gradient.addColorStop(0, '#FF6B6B');
-        gradient.addColorStop(1, '#4ECDC4');
+        gradient.addColorStop(0.5, '#FF8E53');
+        gradient.addColorStop(1, '#FE6B8B');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
     
-    ctx.fillStyle = 'rgba(255, 230, 109, 0.25)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.beginPath();
-    ctx.arc(canvas.width - 100, 150, 200, 0, Math.PI * 2);
+    ctx.arc(canvas.width - 150, 150, 220, 0, Math.PI * 2);
     ctx.fill();
     
-    ctx.fillStyle = 'rgba(78, 205, 196, 0.25)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
     ctx.beginPath();
-    ctx.arc(100, canvas.height - 150, 180, 0, Math.PI * 2);
+    ctx.arc(150, canvas.height - 150, 200, 0, Math.PI * 2);
     ctx.fill();
     
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `900 ${Math.min(95, canvas.width * 0.11)}px ${templateFonts.bold}`;
+    ctx.font = `900 ${Math.min(100, canvas.width * 0.115)}px ${templateFonts.bold}`;
     ctx.textAlign = 'center';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-    ctx.shadowBlur = 30;
-    ctx.shadowOffsetX = 5;
-    ctx.shadowOffsetY = 5;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+    ctx.shadowBlur = 25;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 8;
     
-    wrapText(ctx, name.toUpperCase(), canvas.width / 2, 200 + textPositionOffset, canvas.width - 120, 105);
+    const nameY = 180 + textPositionOffset;
+    wrapText(ctx, name.toUpperCase(), canvas.width / 2, nameY, canvas.width - 140, 110);
     
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
     
-    const cardY = 450;
-    const cardGap = 15;
-    const cardWidth = (canvas.width - 140 - cardGap * 2) / 3;
-    const cardHeight = 200;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    const underlineWidth = Math.min(300, canvas.width * 0.35);
+    ctx.fillRect((canvas.width - underlineWidth) / 2, nameY + 60, underlineWidth, 6);
     
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 10;
+    const cardY = 380;
+    const cardWidth = canvas.width - 140;
+    const cardHeight = 580;
     
-    ctx.fillStyle = '#FFFFFF';
-    roundRect(ctx, 70, cardY, cardWidth, cardHeight, 20);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 50;
+    ctx.shadowOffsetY = 20;
+    
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.98)';
+    roundRect(ctx, 70, cardY, cardWidth, cardHeight, 24);
     ctx.fill();
+    
     ctx.shadowBlur = 0;
     ctx.shadowOffsetY = 0;
+    
+    const cardPadding = 60;
+    let infoY = cardY + 70;
     
     ctx.fillStyle = '#FF6B6B';
-    ctx.font = `900 ${Math.min(60, canvas.width * 0.07)}px ${templateFonts.bold}`;
-    ctx.fillText('📅', 70 + cardWidth / 2, cardY + 80);
+    ctx.font = `700 ${Math.min(24, canvas.width * 0.028)}px ${templateFonts.bold}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('DATE', 70 + cardPadding, infoY);
     
     ctx.fillStyle = '#2D3436';
-    ctx.font = `800 ${Math.min(24, canvas.width * 0.028)}px ${templateFonts.bold}`;
-    wrapText(ctx, date, 70 + cardWidth / 2, cardY + 145, cardWidth - 30, 28);
+    ctx.font = `800 ${Math.min(48, canvas.width * 0.055)}px ${templateFonts.bold}`;
+    ctx.fillText(date, 70 + cardPadding, infoY + 55);
     
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 10;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+    ctx.fillRect(70 + cardPadding, infoY + 85, cardWidth - cardPadding * 2, 2);
     
-    ctx.fillStyle = '#FFFFFF';
-    roundRect(ctx, 70 + cardWidth + cardGap, cardY, cardWidth, cardHeight, 20);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
-    
-    ctx.fillStyle = '#4ECDC4';
-    ctx.font = `900 ${Math.min(60, canvas.width * 0.07)}px ${templateFonts.bold}`;
-    ctx.fillText('🕐', 70 + cardWidth + cardGap + cardWidth / 2, cardY + 80);
+    infoY += 150;
+    ctx.fillStyle = '#FF6B6B';
+    ctx.font = `700 ${Math.min(24, canvas.width * 0.028)}px ${templateFonts.bold}`;
+    ctx.fillText('TIME', 70 + cardPadding, infoY);
     
     ctx.fillStyle = '#2D3436';
-    ctx.font = `800 ${Math.min(24, canvas.width * 0.028)}px ${templateFonts.bold}`;
-    wrapText(ctx, time, 70 + cardWidth + cardGap + cardWidth / 2, cardY + 145, cardWidth - 30, 28);
+    ctx.font = `800 ${Math.min(48, canvas.width * 0.055)}px ${templateFonts.bold}`;
+    ctx.fillText(time, 70 + cardPadding, infoY + 55);
     
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 10;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+    ctx.fillRect(70 + cardPadding, infoY + 85, cardWidth - cardPadding * 2, 2);
     
-    ctx.fillStyle = '#FFFFFF';
-    roundRect(ctx, 70 + (cardWidth + cardGap) * 2, cardY, cardWidth, cardHeight, 20);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
-    
-    ctx.fillStyle = '#FFE66D';
-    ctx.font = `900 ${Math.min(60, canvas.width * 0.07)}px ${templateFonts.bold}`;
-    ctx.fillText('📍', 70 + (cardWidth + cardGap) * 2 + cardWidth / 2, cardY + 80);
+    infoY += 150;
+    ctx.fillStyle = '#FF6B6B';
+    ctx.font = `700 ${Math.min(24, canvas.width * 0.028)}px ${templateFonts.bold}`;
+    ctx.fillText('LOCATION', 70 + cardPadding, infoY);
     
     ctx.fillStyle = '#2D3436';
-    ctx.font = `800 ${Math.min(22, canvas.width * 0.026)}px ${templateFonts.bold}`;
-    wrapText(ctx, location, 70 + (cardWidth + cardGap) * 2 + cardWidth / 2, cardY + 145, cardWidth - 30, 26);
+    ctx.font = `700 ${Math.min(42, canvas.width * 0.048)}px ${templateFonts.bold}`;
+    wrapText(ctx, location, 70 + cardPadding, infoY + 55, cardWidth - cardPadding * 2, 50);
     
     if (details) {
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-        ctx.shadowBlur = 25;
-        ctx.shadowOffsetY = 12;
-        
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-        roundRect(ctx, 70, cardY + cardHeight + 40, canvas.width - 140, 180, 20);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
-        
-        ctx.fillStyle = '#2D3436';
-        ctx.font = `600 ${Math.min(30, canvas.width * 0.035)}px ${templateFonts.bold}`;
-        wrapText(ctx, details, canvas.width / 2, cardY + cardHeight + 110, canvas.width - 200, 38);
+        infoY += 150;
+        ctx.fillStyle = '#7F8C8D';
+        ctx.font = `600 ${Math.min(32, canvas.width * 0.037)}px ${templateFonts.bold}`;
+        wrapText(ctx, details, 70 + cardPadding, infoY, cardWidth - cardPadding * 2, 40);
     }
     
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-    ctx.shadowBlur = 25;
-    ctx.shadowOffsetY = 12;
+    const ctaY = canvas.height - 160;
+    
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 30;
+    ctx.shadowOffsetY = 10;
     
     ctx.fillStyle = '#2D3436';
-    roundRect(ctx, 100, canvas.height - 180, canvas.width - 200, 110, 20);
+    roundRect(ctx, 100, ctaY, canvas.width - 200, 100, 20);
     ctx.fill();
+    
     ctx.shadowBlur = 0;
     ctx.shadowOffsetY = 0;
     
-    ctx.fillStyle = '#FFE66D';
-    ctx.font = `900 ${Math.min(50, canvas.width * 0.058)}px ${templateFonts.bold}`;
-    ctx.fillText('JOIN US!', canvas.width / 2, canvas.height - 108);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `900 ${Math.min(52, canvas.width * 0.06)}px ${templateFonts.bold}`;
+    ctx.textAlign = 'center';
+    ctx.fillText('JOIN US!', canvas.width / 2, ctaY + 65);
 }
 
 // ===== MINIMAL TEMPLATE =====
@@ -927,11 +885,11 @@ if (shareInstagram) {
                     title: 'Event Poster',
                     text: 'Check out this event poster!'
                 }).catch(() => {
-                    alert('Download the poster and share it manually on Instagram!');
+                    alert('📱 Download the poster and share it manually on Instagram!');
                     downloadBtn.click();
                 });
             } else {
-                alert('Download the poster and share it manually on Instagram!');
+                alert('📱 Download the poster and share it manually on Instagram!');
                 downloadBtn.click();
             }
         });
@@ -974,7 +932,7 @@ window.addEventListener('load', () => {
     ctx.fillStyle = '#e8e9f3';
     ctx.font = 'bold 50px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('Event Poster Generator', canvas.width/2, canvas.height/2 - 100);
+    ctx.fillText('✨ Event Poster Generator', canvas.width/2, canvas.height/2 - 100);
     
     ctx.fillStyle = '#b8b9c7';
     ctx.font = '30px Arial';
@@ -983,6 +941,6 @@ window.addEventListener('load', () => {
     ctx.fillText('Then click Generate!', canvas.width/2, canvas.height/2 + 100);
     
     ctx.font = 'bold 25px Arial';
-    ctx.fillStyle = '#ecc827';
-    ctx.fillText('Start here', canvas.width/2, canvas.height/2 + 180);
+    ctx.fillStyle = '#667eea';
+    ctx.fillText('👆 Start here', canvas.width/2, canvas.height/2 + 180);
 });
