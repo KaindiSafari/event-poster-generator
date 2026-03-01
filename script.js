@@ -104,11 +104,11 @@ if (aiRecommendBtn) {
         const eventDetails = document.getElementById('eventDetails').value.trim();
         
         if (!eventName) {
-            alert('💡 Please enter an event name first!');
+            alert('Please enter an event name first!');
             return;
         }
         
-        aiRecommendBtn.innerHTML = '🤖 AI is thinking...';
+        aiRecommendBtn.innerHTML = 'AI is thinking...';
         aiRecommendBtn.disabled = true;
         
         try {
@@ -136,20 +136,20 @@ if (aiRecommendBtn) {
             
             const resultDiv = document.getElementById('aiResult');
             if (resultDiv) {
-                resultDiv.textContent = `✨ AI says: ${recommendation}`;
+                resultDiv.textContent = `AI says: ${recommendation}`;
                 resultDiv.style.display = 'block';
             }
             
-            aiRecommendBtn.innerHTML = '✅ Template Selected!';
+            aiRecommendBtn.innerHTML = 'Template Selected!';
             setTimeout(() => {
-                aiRecommendBtn.innerHTML = '✨ AI: Recommend Best Template';
+                aiRecommendBtn.innerHTML = 'AI: Recommend Best Template';
                 aiRecommendBtn.disabled = false;
             }, 2000);
             
         } catch (error) {
             console.error('AI Error:', error);
-            alert('⚠️ AI recommendation failed. Please try again!');
-            aiRecommendBtn.innerHTML = '✨ AI: Recommend Best Template';
+            alert('AI recommendation failed. Please try again!');
+            aiRecommendBtn.innerHTML = 'AI: Recommend Best Template';
             aiRecommendBtn.disabled = false;
         }
     });
@@ -845,10 +845,10 @@ if (copyBtn) {
                 await navigator.clipboard.write([
                     new ClipboardItem({ 'image/png': blob })
                 ]);
-                alert('✅ Poster copied to clipboard!');
+                alert('Poster copied to clipboard!');
             });
         } catch (err) {
-            alert('⚠️ Copy failed. Try Download instead!');
+            alert('Copy failed. Try Download instead!');
         }
     });
 }
@@ -932,7 +932,7 @@ window.addEventListener('load', () => {
     ctx.fillStyle = '#e8e9f3';
     ctx.font = 'bold 50px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('✨ Event Poster Generator', canvas.width/2, canvas.height/2 - 100);
+    ctx.fillText('Event Poster Generator', canvas.width/2, canvas.height/2 - 100);
     
     ctx.fillStyle = '#b8b9c7';
     ctx.font = '30px Arial';
@@ -941,6 +941,6 @@ window.addEventListener('load', () => {
     ctx.fillText('Then click Generate!', canvas.width/2, canvas.height/2 + 100);
     
     ctx.font = 'bold 25px Arial';
-    ctx.fillStyle = '#667eea';
-    ctx.fillText('👆 Start here', canvas.width/2, canvas.height/2 + 180);
+    ctx.fillStyle = '#0ea896';
+    ctx.fillText('Start here', canvas.width/2, canvas.height/2 + 180);
 });
