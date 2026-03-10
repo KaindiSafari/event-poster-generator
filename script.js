@@ -57,6 +57,30 @@ const templates = {
 let uploadedImage = null;
 let textPositionOffset = 0;
 
+// ===== TOAST NOTIFICATIONS =====
+function showToast(message, type = 'info') {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ===== DEBOUNCE UTILITY =====
+function debounce(fn, delay) {
+    let timer;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
 // ===== POSTER SIZE HANDLER =====
 const posterSizeSelect = document.getElementById('posterSize');
 if (posterSizeSelect) {
@@ -67,7 +91,7 @@ if (posterSizeSelect) {
         
         const eventName = document.getElementById('eventName').value;
         if (eventName) {
-            generateBtn.click();
+            generatePoster();
         }
     });
 }
@@ -104,7 +128,7 @@ if (aiRecommendBtn) {
         const eventDetails = document.getElementById('eventDetails').value.trim();
         
         if (!eventName) {
-            alert('Please enter an event name first!');
+            showToast('Please enter an event name first!', 'error');
             return;
         }
         
@@ -148,7 +172,7 @@ if (aiRecommendBtn) {
             
         } catch (error) {
             console.error('AI Error:', error);
-            alert('AI recommendation failed. Please try again!');
+            showToast('AI recommendation failed. Please try again!', 'error');
             aiRecommendBtn.innerHTML = 'AI: Recommend Best Template';
             aiRecommendBtn.disabled = false;
         }
@@ -161,7 +185,7 @@ if (searchBtn) {
     searchBtn.addEventListener('click', async function() {
         const query = document.getElementById('imageSearch').value.toLowerCase().trim();
         if (!query) {
-            alert('Please enter a search term');
+            showToast('Please enter a search term', 'error');
             return;
         }
         
@@ -265,7 +289,7 @@ function selectUnsplashImage(imageUrl) {
             preview.src = imageUrl;
             preview.style.display = 'block';
         }
-        alert('Image selected! Click Generate Poster.');
+        showToast('Image selected! Click Generate Poster.', 'success');
     };
     img.src = imageUrl;
 }
@@ -387,7 +411,7 @@ function getSuggestions(query) {
     return ['church', 'party', 'nature', 'food', 'business'];
 }
 // ===== GENERATE POSTER =====
-generateBtn.addEventListener('click', () => {
+function generatePoster() {
     const template = document.getElementById('template').value;
     const eventName = document.getElementById('eventName').value || 'YOUR EVENT NAME';
     const eventDate = document.getElementById('eventDate').value || 'DATE TBA';
@@ -396,7 +420,26 @@ generateBtn.addEventListener('click', () => {
     const eventDetails = document.getElementById('eventDetails').value || '';
 
     drawPoster(template, eventName, eventDate, eventTime, eventLocation, eventDetails);
+}
+
+generateBtn.addEventListener('click', generatePoster);
+
+// ===== AUTO-GENERATE (DEBOUNCED) =====
+const autoGenerate = debounce(() => {
+    if (document.getElementById('eventName').value.trim()) generatePoster();
+}, 600);
+
+['eventName', 'eventDate', 'eventTime', 'eventLocation', 'eventDetails'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', autoGenerate);
 });
+
+const templateSelect = document.getElementById('template');
+if (templateSelect) {
+    templateSelect.addEventListener('change', () => {
+        if (document.getElementById('eventName').value.trim()) generatePoster();
+    });
+}
 
 function drawPoster(templateName, name, date, time, location, details) {
     const template = templates[templateName];
@@ -845,10 +888,10 @@ if (copyBtn) {
                 await navigator.clipboard.write([
                     new ClipboardItem({ 'image/png': blob })
                 ]);
-                alert('Poster copied to clipboard!');
+                showToast('Poster copied to clipboard!', 'success');
             });
         } catch (err) {
-            alert('Copy failed. Try Download instead!');
+            showToast('Copy failed. Try Download instead!', 'error');
         }
     });
 }
@@ -885,11 +928,11 @@ if (shareInstagram) {
                     title: 'Event Poster',
                     text: 'Check out this event poster!'
                 }).catch(() => {
-                    alert('📱 Download the poster and share it manually on Instagram!');
+                    showToast('📱 Download the poster and share it manually on Instagram!', 'info');
                     downloadBtn.click();
                 });
             } else {
-                alert('📱 Download the poster and share it manually on Instagram!');
+                showToast('📱 Download the poster and share it manually on Instagram!', 'info');
                 downloadBtn.click();
             }
         });
