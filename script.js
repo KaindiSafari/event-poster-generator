@@ -81,6 +81,58 @@ function debounce(fn, delay) {
     };
 }
 
+// ===== DRAFT AUTO-SAVE =====
+function saveDraft() {
+    const draft = {
+        eventName: document.getElementById('eventName').value,
+        eventDate: document.getElementById('eventDate').value,
+        eventTime: document.getElementById('eventTime').value,
+        eventLocation: document.getElementById('eventLocation').value,
+        eventDetails: document.getElementById('eventDetails').value,
+        template: document.getElementById('template').value,
+        posterSize: document.getElementById('posterSize').value,
+    };
+    localStorage.setItem('eventPosterDraft', JSON.stringify(draft));
+}
+
+function loadDraft() {
+    const raw = localStorage.getItem('eventPosterDraft');
+    if (!raw) return false;
+    const draft = JSON.parse(raw);
+    if (!draft.eventName) return false;
+
+    ['eventName','eventDate','eventTime','eventLocation','eventDetails','template','posterSize'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && draft[id]) el.value = draft[id];
+    });
+
+    const size = posterSizes[draft.posterSize] || posterSizes['print'];
+    canvas.width = size.width;
+    canvas.height = size.height;
+
+    const clearBtn = document.getElementById('clearDraft');
+    if (clearBtn) clearBtn.style.display = 'inline-block';
+
+    showToast('Draft restored from last session', 'info');
+    generatePoster();
+    return true;
+}
+
+function clearDraft() {
+    localStorage.removeItem('eventPosterDraft');
+    ['eventName','eventDate','eventTime','eventLocation','eventDetails'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('template').value = 'modern';
+    document.getElementById('posterSize').value = 'print';
+    canvas.width = posterSizes['print'].width;
+    canvas.height = posterSizes['print'].height;
+    document.getElementById('clearDraft').style.display = 'none';
+    showToast('Draft cleared', 'info');
+    drawWelcomeScreen();
+}
+
 // ===== POSTER SIZE HANDLER =====
 const posterSizeSelect = document.getElementById('posterSize');
 if (posterSizeSelect) {
@@ -88,11 +140,12 @@ if (posterSizeSelect) {
         const size = posterSizes[this.value];
         canvas.width = size.width;
         canvas.height = size.height;
-        
+
         const eventName = document.getElementById('eventName').value;
         if (eventName) {
             generatePoster();
         }
+        saveDraft();
     });
 }
 
@@ -431,14 +484,23 @@ const autoGenerate = debounce(() => {
 
 ['eventName', 'eventDate', 'eventTime', 'eventLocation', 'eventDetails'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.addEventListener('input', autoGenerate);
+    if (el) {
+        el.addEventListener('input', autoGenerate);
+        el.addEventListener('input', saveDraft);
+    }
 });
 
 const templateSelect = document.getElementById('template');
 if (templateSelect) {
     templateSelect.addEventListener('change', () => {
         if (document.getElementById('eventName').value.trim()) generatePoster();
+        saveDraft();
     });
+}
+
+const clearDraftBtn = document.getElementById('clearDraft');
+if (clearDraftBtn) {
+    clearDraftBtn.addEventListener('click', clearDraft);
 }
 
 function drawPoster(templateName, name, date, time, location, details) {
@@ -959,31 +1021,32 @@ if (shareTwitter) {
 }
 
 // ===== INITIAL LOAD - WELCOME SCREEN =====
-window.addEventListener('load', () => {
-    // Draw blank canvas with instructions
+function drawWelcomeScreen() {
     ctx.fillStyle = '#0f0f1e';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Subtle gradient overlay
+
     const gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 100, canvas.width/2, canvas.height/2, 600);
     gradient.addColorStop(0, 'rgba(102, 92, 238, 0.15)');
     gradient.addColorStop(1, 'rgba(102, 92, 238, 0)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Welcome text
+
     ctx.fillStyle = '#e8e9f3';
     ctx.font = 'bold 50px Arial';
     ctx.textAlign = 'center';
     ctx.fillText('Event Poster Generator', canvas.width/2, canvas.height/2 - 100);
-    
+
     ctx.fillStyle = '#b8b9c7';
     ctx.font = '30px Arial';
     ctx.fillText('Fill in your event details', canvas.width/2, canvas.height/2);
     ctx.fillText('Choose a template', canvas.width/2, canvas.height/2 + 50);
     ctx.fillText('Then click Generate!', canvas.width/2, canvas.height/2 + 100);
-    
+
     ctx.font = 'bold 25px Arial';
     ctx.fillStyle = '#0ea896';
     ctx.fillText('Start here', canvas.width/2, canvas.height/2 + 180);
+}
+
+window.addEventListener('load', () => {
+    if (!loadDraft()) drawWelcomeScreen();
 });

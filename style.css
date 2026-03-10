@@ -290,6 +290,19 @@ footer a:hover {
     line-height: 1.5;
 }
 
+.btn-clear-draft {
+    background: none;
+    border: none;
+    color: #7f8c8d;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    margin-bottom: 1rem;
+    display: block;
+}
+.btn-clear-draft:hover { color: #e74c3c; }
+
 @media (max-width: 968px) {
     .container {
         grid-template-columns: 1fr;
