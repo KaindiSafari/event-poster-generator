@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile', // Groq's best model
+        model: 'llama-3.3-70b-versatile',
         messages: [{
           role: 'system',
           content: 'You are a professional graphic designer helping choose poster templates. Be brief and confident.'
