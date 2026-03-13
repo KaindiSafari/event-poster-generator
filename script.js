@@ -503,6 +503,16 @@ if (clearDraftBtn) {
     clearDraftBtn.addEventListener('click', clearDraft);
 }
 
+// ===== TEXT POSITION SLIDER =====
+const textPositionSlider = document.getElementById('textPositionSlider');
+if (textPositionSlider) {
+    textPositionSlider.addEventListener('input', function() {
+        textPositionOffset = parseInt(this.value);
+        document.getElementById('textPositionValue').textContent = this.value;
+        if (document.getElementById('eventName').value.trim()) generatePoster();
+    });
+}
+
 function drawPoster(templateName, name, date, time, location, details) {
     const template = templates[templateName];
     ctx.clearRect(0, 0, canvas.width, canvas.height);
