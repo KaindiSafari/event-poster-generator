@@ -317,6 +317,17 @@ input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.2);
 }
 
+.btn-reset-color {
+    background: none;
+    border: none;
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+}
+.btn-reset-color:hover { color: #667eea; }
+
 .btn-clear-draft {
     background: none;
     border: none;

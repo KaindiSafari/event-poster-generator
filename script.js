@@ -56,6 +56,13 @@ const templates = {
 
 let uploadedImage = null;
 let textPositionOffset = 0;
+let userAccentColor = null;
+const templateAccentDefaults = {
+    modern: '#6C5CE7',
+    bold: '#FF6B6B',
+    minimal: '#E74C3C',
+    retro: '#FF6B9D'
+};
 
 // ===== TOAST NOTIFICATIONS =====
 function showToast(message, type = 'info') {
@@ -493,8 +500,32 @@ const autoGenerate = debounce(() => {
 const templateSelect = document.getElementById('template');
 if (templateSelect) {
     templateSelect.addEventListener('change', () => {
+        const tmpl = document.getElementById('template').value;
+        userAccentColor = null;
+        const picker = document.getElementById('accentColor');
+        if (picker) picker.value = templateAccentDefaults[tmpl] || '#6C5CE7';
         if (document.getElementById('eventName').value.trim()) generatePoster();
         saveDraft();
+    });
+}
+
+// ===== ACCENT COLOUR PICKER =====
+const accentColorPicker = document.getElementById('accentColor');
+if (accentColorPicker) {
+    accentColorPicker.addEventListener('input', function() {
+        userAccentColor = this.value;
+        if (document.getElementById('eventName').value.trim()) generatePoster();
+    });
+}
+
+const resetAccentBtn = document.getElementById('resetAccentColor');
+if (resetAccentBtn) {
+    resetAccentBtn.addEventListener('click', () => {
+        const tmpl = document.getElementById('template').value;
+        userAccentColor = null;
+        const picker = document.getElementById('accentColor');
+        if (picker) picker.value = templateAccentDefaults[tmpl] || '#6C5CE7';
+        if (document.getElementById('eventName').value.trim()) generatePoster();
     });
 }
 
@@ -530,6 +561,7 @@ function drawPoster(templateName, name, date, time, location, details) {
 
 // ===== MODERN TEMPLATE =====
 function drawModernTemplate(t, name, date, time, location, details) {
+    const accent = userAccentColor || '#6C5CE7';
     if (uploadedImage) {
         ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -560,7 +592,7 @@ function drawModernTemplate(t, name, date, time, location, details) {
     
     ctx.shadowBlur = 0;
     ctx.shadowOffsetY = 0;
-    ctx.fillStyle = '#6C5CE7';
+    ctx.fillStyle = accent;
     const lineWidth = 120;
     ctx.fillRect((canvas.width - lineWidth) / 2, margin + 80, lineWidth, 4);
     
@@ -580,7 +612,7 @@ function drawModernTemplate(t, name, date, time, location, details) {
     let yPos = cardY + 80;
     const leftMargin = 80 + cardPadding;
     
-    ctx.fillStyle = '#6C5CE7';
+    ctx.fillStyle = accent;
     ctx.font = `600 ${Math.min(20, canvas.width * 0.025)}px ${templateFonts.modern}`;
     ctx.textAlign = 'left';
     ctx.fillText('DATE', leftMargin, yPos);
@@ -590,7 +622,7 @@ function drawModernTemplate(t, name, date, time, location, details) {
     ctx.fillText(date, leftMargin, yPos + 45);
     
     yPos += 130;
-    ctx.fillStyle = '#6C5CE7';
+    ctx.fillStyle = accent;
     ctx.font = `600 ${Math.min(20, canvas.width * 0.025)}px ${templateFonts.modern}`;
     ctx.fillText('TIME', leftMargin, yPos);
     
@@ -599,7 +631,7 @@ function drawModernTemplate(t, name, date, time, location, details) {
     ctx.fillText(time, leftMargin, yPos + 42);
     
     yPos += 130;
-    ctx.fillStyle = '#6C5CE7';
+    ctx.fillStyle = accent;
     ctx.font = `600 ${Math.min(20, canvas.width * 0.025)}px ${templateFonts.modern}`;
     ctx.fillText('LOCATION', leftMargin, yPos);
     
@@ -619,12 +651,13 @@ function drawModernTemplate(t, name, date, time, location, details) {
     ctx.textAlign = 'center';
     ctx.fillText('ALL WELCOME', canvas.width / 2, canvas.height - 80);
     
-    ctx.fillStyle = '#6C5CE7';
+    ctx.fillStyle = accent;
     ctx.fillRect(0, canvas.height - 8, canvas.width, 8);
 }
 
 // ===== BOLD TEMPLATE =====
 function drawBoldTemplate(t, name, date, time, location, details) {
+    const accent = userAccentColor || '#FF6B6B';
     if (uploadedImage) {
         ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -689,7 +722,7 @@ function drawBoldTemplate(t, name, date, time, location, details) {
     const cardPadding = 60;
     let infoY = cardY + 70;
     
-    ctx.fillStyle = '#FF6B6B';
+    ctx.fillStyle = accent;
     ctx.font = `700 ${Math.min(24, canvas.width * 0.028)}px ${templateFonts.bold}`;
     ctx.textAlign = 'left';
     ctx.fillText('DATE', 70 + cardPadding, infoY);
@@ -702,7 +735,7 @@ function drawBoldTemplate(t, name, date, time, location, details) {
     ctx.fillRect(70 + cardPadding, infoY + 85, cardWidth - cardPadding * 2, 2);
     
     infoY += 150;
-    ctx.fillStyle = '#FF6B6B';
+    ctx.fillStyle = accent;
     ctx.font = `700 ${Math.min(24, canvas.width * 0.028)}px ${templateFonts.bold}`;
     ctx.fillText('TIME', 70 + cardPadding, infoY);
     
@@ -714,7 +747,7 @@ function drawBoldTemplate(t, name, date, time, location, details) {
     ctx.fillRect(70 + cardPadding, infoY + 85, cardWidth - cardPadding * 2, 2);
     
     infoY += 150;
-    ctx.fillStyle = '#FF6B6B';
+    ctx.fillStyle = accent;
     ctx.font = `700 ${Math.min(24, canvas.width * 0.028)}px ${templateFonts.bold}`;
     ctx.fillText('LOCATION', 70 + cardPadding, infoY);
     
@@ -750,6 +783,7 @@ function drawBoldTemplate(t, name, date, time, location, details) {
 
 // ===== MINIMAL TEMPLATE =====
 function drawMinimalTemplate(t, name, date, time, location, details) {
+    const accent = userAccentColor || '#E74C3C';
     if (uploadedImage) {
         ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
@@ -768,7 +802,7 @@ function drawMinimalTemplate(t, name, date, time, location, details) {
         }
     }
     
-    ctx.fillStyle = '#E74C3C';
+    ctx.fillStyle = accent;
     ctx.fillRect(0, 0, 12, canvas.height);
     
     const leftMargin = 80;
@@ -778,13 +812,13 @@ function drawMinimalTemplate(t, name, date, time, location, details) {
     
     wrapText(ctx, name.toUpperCase(), leftMargin, 180 + textPositionOffset, canvas.width - leftMargin - 60, 110);
     
-    ctx.fillStyle = '#E74C3C';
+    ctx.fillStyle = accent;
     ctx.fillRect(leftMargin, 320, 80, 6);
     
     let yPos = 450;
     const labelSpacing = 160;
     
-    ctx.fillStyle = '#E74C3C';
+    ctx.fillStyle = accent;
     ctx.font = `700 ${Math.min(22, canvas.width * 0.026)}px ${templateFonts.minimal}`;
     ctx.fillText('DATE', leftMargin, yPos);
     
@@ -793,7 +827,7 @@ function drawMinimalTemplate(t, name, date, time, location, details) {
     ctx.fillText(date, leftMargin, yPos + 52);
     
     yPos += labelSpacing;
-    ctx.fillStyle = '#E74C3C';
+    ctx.fillStyle = accent;
     ctx.font = `700 ${Math.min(22, canvas.width * 0.026)}px ${templateFonts.minimal}`;
     ctx.fillText('TIME', leftMargin, yPos);
     
@@ -802,7 +836,7 @@ function drawMinimalTemplate(t, name, date, time, location, details) {
     ctx.fillText(time, leftMargin, yPos + 52);
     
     yPos += labelSpacing;
-    ctx.fillStyle = '#E74C3C';
+    ctx.fillStyle = accent;
     ctx.font = `700 ${Math.min(22, canvas.width * 0.026)}px ${templateFonts.minimal}`;
     ctx.fillText('LOCATION', leftMargin, yPos);
     
@@ -817,12 +851,13 @@ function drawMinimalTemplate(t, name, date, time, location, details) {
         wrapText(ctx, details, leftMargin, yPos, canvas.width - leftMargin - 60, 40);
     }
     
-    ctx.fillStyle = '#E74C3C';
+    ctx.fillStyle = accent;
     ctx.fillRect(0, canvas.height - 12, canvas.width, 12);
 }
 
 // ===== RETRO TEMPLATE =====
 function drawRetroTemplate(t, name, date, time, location, details) {
+    const accent = userAccentColor || '#FF6B9D';
     if (uploadedImage) {
         ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'rgba(255, 244, 230, 0.75)';
@@ -848,7 +883,7 @@ function drawRetroTemplate(t, name, date, time, location, details) {
         ctx.fill();
     }
     
-    ctx.fillStyle = '#FF6B9D';
+    ctx.fillStyle = accent;
     ctx.font = `900 ${Math.min(110, canvas.width * 0.125)}px ${templateFonts.retro}`;
     ctx.textAlign = 'center';
     ctx.shadowColor = '#6BCF7F';
@@ -864,7 +899,7 @@ function drawRetroTemplate(t, name, date, time, location, details) {
     const boxY = 500;
     const boxHeight = 500;
     
-    ctx.fillStyle = '#FF6B9D';
+    ctx.fillStyle = accent;
     roundRect(ctx, 100, boxY, canvas.width - 200, boxHeight, 30);
     ctx.fill();
     
@@ -895,7 +930,7 @@ function drawRetroTemplate(t, name, date, time, location, details) {
         wrapText(ctx, details, canvas.width / 2, infoY, canvas.width - 300, 42);
     }
     
-    ctx.fillStyle = '#FF6B9D';
+    ctx.fillStyle = accent;
     ctx.font = `900 ${Math.min(48, canvas.width * 0.055)}px ${templateFonts.retro}`;
     ctx.shadowColor = '#FFD93D';
     ctx.shadowOffsetX = 6;
