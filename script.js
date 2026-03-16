@@ -565,8 +565,8 @@ function drawModernTemplate(t, name, date, time, location, details) {
     if (uploadedImage) {
         ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, 'rgba(15, 15, 30, 0.75)');
-        gradient.addColorStop(1, 'rgba(15, 15, 30, 0.92)');
+        gradient.addColorStop(0, 'rgba(15, 15, 30, 0.25)');
+        gradient.addColorStop(1, 'rgba(15, 15, 30, 0.40)');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     } else {
@@ -661,9 +661,9 @@ function drawBoldTemplate(t, name, date, time, location, details) {
     if (uploadedImage) {
         ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, 'rgba(255, 87, 87, 0.7)');
-        gradient.addColorStop(0.5, 'rgba(255, 107, 107, 0.75)');
-        gradient.addColorStop(1, 'rgba(220, 47, 47, 0.85)');
+        gradient.addColorStop(0, 'rgba(255, 87, 87, 0.25)');
+        gradient.addColorStop(0.5, 'rgba(255, 107, 107, 0.25)');
+        gradient.addColorStop(1, 'rgba(220, 47, 47, 0.25)');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     } else {
@@ -786,7 +786,7 @@ function drawMinimalTemplate(t, name, date, time, location, details) {
     const accent = userAccentColor || '#E74C3C';
     if (uploadedImage) {
         ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     } else {
         ctx.fillStyle = '#FAFAFA';
@@ -860,7 +860,7 @@ function drawRetroTemplate(t, name, date, time, location, details) {
     const accent = userAccentColor || '#FF6B9D';
     if (uploadedImage) {
         ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(255, 244, 230, 0.75)';
+        ctx.fillStyle = 'rgba(255, 244, 230, 0.25)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     } else {
         ctx.fillStyle = '#FFF8E7';
